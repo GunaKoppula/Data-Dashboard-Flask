@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="static/styles2.css">
+    <script>
+        function toggleGraphTypeFields() {
+            var typeSelect = document.getElementById('Type');
+            var lineFieldsDiv = document.getElementById('line_fields_div');
+            var scatterFieldsDiv = document.getElementById('scatter_fields_div');
+            var barFieldsDiv = document.getElementById('bar_fields_div');
+            var boxFieldsDiv = document.getElementById('box_fields_div');
+            var violinFieldsDiv = document.getElementById('violin_fields_div');
+            var histFieldsDiv = document.getElementById('hist_fields_div');
+            var pieFieldsDiv = document.getElementById('pie_fields_div');
+            var animationFrameDiv = document.getElementById('animation_frame_div');
+
+            if (typeSelect.value === 'Line') {
+                lineFieldsDiv.style.display = 'grid';
+                scatterFieldsDiv.style.display = 'none';
+                barFieldsDiv.style.display = 'none';
+                boxFieldsDiv.style.display = 'none';
+                violinFieldsDiv.style.display = 'none';
+                histFieldsDiv.style.display = 'none';
+                pieFieldsDiv.style.display = 'none';
+                animationFrameDiv.style.display = 'grid';
+            } else if (typeSelect.value === 'Scatter') {
+                scatterFieldsDiv.style.display = 'grid';
+                lineFieldsDiv.style.display = 'none';
+                barFieldsDiv.style.display = 'none';
+                boxFieldsDiv.style.display = 'none';
+                violinFieldsDiv.style.display = 'none';
+                histFieldsDiv.style.display = 'none';
+                pieFieldsDiv.style.display = 'none';
+                animationFrameDiv.style.display = 'grid';
+            } else if (typeSelect.value === 'Bar') {
+                barFieldsDiv.style.display = 'grid';
+                scatterFieldsDiv.style.display = 'none';
+                lineFieldsDiv.style.display = 'none';
+                boxFieldsDiv.style.display = 'none';
+                violinFieldsDiv.style.display = 'none';
+                histFieldsDiv.style.display = 'none';
+                pieFieldsDiv.style.display = 'none';
+                animationFrameDiv.style.display = 'grid';
+            } else if (typeSelect.value === 'Box') {
+                boxFieldsDiv.style.display = 'grid';
+                barFieldsDiv.style.display = 'none';
+                scatterFieldsDiv.style.display = 'none';
+                lineFieldsDiv.style.display = 'none';
+                violinFieldsDiv.style.display = 'none';
+                histFieldsDiv.style.display = 'none';
+                pieFieldsDiv.style.display = 'none';
+                animationFrameDiv.style.display = 'grid';
+            } else if (typeSelect.value === 'Violin') {
+                violinFieldsDiv.style.display = 'grid';
+                boxFieldsDiv.style.display = 'none';
+                barFieldsDiv.style.display = 'none';
+                scatterFieldsDiv.style.display = 'none';
+                lineFieldsDiv.style.display = 'none';
+                histFieldsDiv.style.display = 'none';
+                pieFieldsDiv.style.display = 'none';
+                animationFrameDiv.style.display = 'grid';
+            } else if (typeSelect.value === 'Histogram') {
+                histFieldsDiv.style.display = 'grid';
+                violinFieldsDiv.style.display = 'none';
+                boxFieldsDiv.style.display = 'none';
+                barFieldsDiv.style.display = 'none';
+                scatterFieldsDiv.style.display = 'none';
+                lineFieldsDiv.style.display = 'none';
+                pieFieldsDiv.style.display = 'none';
+                animationFrameDiv.style.display = 'grid';
+            } else if (typeSelect.value === 'Pie') {
+                pieFieldsDiv.style.display = 'grid';
+                histFieldsDiv.style.display = 'none';
+                violinFieldsDiv.style.display = 'none';
+                boxFieldsDiv.style.display = 'none';
+                barFieldsDiv.style.display = 'none';
+                scatterFieldsDiv.style.display = 'none';
+                lineFieldsDiv.style.display = 'none';
+                animationFrameDiv.style.display = 'none';
+            } else {
+                lineFieldsDiv.style.display = 'none';
+                scatterFieldsDiv.style.display = 'none';
+                barFieldsDiv.style.display = 'none';
+                boxFieldsDiv.style.display = 'none';
+                violinFieldsDiv.style.display = 'none';
+                histFieldsDiv.style.display = 'none';
+                pieFieldsDiv.style.display = 'none';
+                animationFrameDiv.style.display = 'none';
+            }
+        }
+        
+        function updateAxisLabel() {
+            var graphType = document.getElementById('Type').value;
+            var xAxisLabel = document.getElementById('x_axis_label');
+            var yAxisLabel = document.getElementById('y_axis_label');
+            if (graphType === 'Pie') {
+                xAxisLabel.textContent = 'Name';
+                yAxisLabel.textContent = 'Value';
+            } else {
+                xAxisLabel.textContent = 'X-axis:';
+                yAxisLabel.textContent = 'Y-axis';
+            }
+        }
+        
+        function toggleFacetingFields() {
+            var facetingSelect = document.getElementById('faceting');
+            var facetingFieldsDiv = document.getElementById('faceting_fields_div');
+
+            if (facetingSelect.value === 'yes') {
+                facetingFieldsDiv.style.display = 'grid';
+            } else {
+                facetingFieldsDiv.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleGraphTypeFields();
+            toggleFacetingFields();
+
+            document.getElementById('Type').addEventListener('change', function() {
+                toggleGraphTypeFields();
+                updateAxisLabel();
+            });
+
+            document.getElementById('faceting').addEventListener('change', toggleFacetingFields);
+        });
+        
+    </script>
+
+</head>
+<body>
+    <h1>Data Visualization</h1>
+    <div class="container">
+        <div class="form-container">
+            <form method="POST" action="/visualize">
+                <input type="hidden" id="filename" name="filename" value="{{ filename }}">
+                
+                <label for="template">Template:</label>
+                <select id="template" name="template">
+                    {% for temp in templates %}
+                        <option value="{{ temp }}" {% if temp == template %}selected{% endif %}>{{ temp }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="Type">Graph Type:</label>
+                <select id="Type" name="Type">
+                    <option value="Line" {% if Type == 'Line' %}selected{% endif %}>Line</option>
+                    <option value="Scatter" {% if Type == 'Scatter' %}selected{% endif %}>Scatter</option>
+                    <option value="Bar" {% if Type == 'Bar' %}selected{% endif %}>Bar</option>
+                    <option value="Pie" {% if Type == 'Pie' %}selected{% endif %}>Pie</option>
+                    <option value="Box" {% if Type == 'Box' %}selected{% endif %}>Box</option>
+                    <option value="Violin" {% if Type == 'Violin' %}selected{% endif %}>Violin</option>
+                    <option value="Histogram" {% if Type == 'Histogram' %}selected{% endif %}>Histogram</option>
+                </select>
+                
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter Title for the graph..." value="{{ title }}">
+                
+                <label id="x_axis_label" for="x_axis">X-axis:</label>
+                <select id="x_axis" name="x_axis">
+                    {% for col in columns %}
+                        <option value="{{ col }}" {% if col == x_axis %}selected{% endif %}>{{ col }}</option>
+                    {% endfor %}
+                </select>
+
+                <label id="y_axis_label" for="y_axis">Y-axis:</label>
+                <select id="y_axis" name="y_axis" multiple>
+                    {% for col in columns %}
+                        <option value="{{ col }}" {% if col in y_axis %}selected{% endif %}>{{ col }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="hover_name">Hover Name:</label>
+                <select id="hover_name" name="hover_name">
+                    <option value="None" {% if hover_name == 'None' %}selected{% endif %}>None</option>
+                    {% for col in columns %}
+                        <option value="{{ col }}" {% if col == hover_name %}selected{% endif %}>{{ col }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="color">Color:</label>
+                <select id="color" name="color">
+                    <option value="None" {% if color == 'None' %}selected{% endif %}>None</option>
+                    {% for col in columns %}
+                        <option value="{{ col }}" {% if col == color %}selected{% endif %}>{{ col }}</option>
+                    {% endfor %}
+                </select>
+                
+                <div id="line_fields_div">  
+                    <label for="line_dash_sequence">Line Dash Sequence:</label>
+                    <select id="line_dash_sequence" name="line_dash_sequence">
+                        <option value="solid" {% if line_dash_sequence == 'solid' %}selected{% endif %}>Solid</option>
+                        <option value="dash" {% if line_dash_sequence == 'dash' %}selected{% endif %}>Dash</option>
+                        <option value="dot" {% if line_dash_sequence == 'dot' %}selected{% endif %}>Dot</option>
+                    </select>
+                    
+                    <label for="markers">Markers:</label>
+                    <select id="markers" name="markers">
+                        <option value="false" {% if markers == 'false' %}selected{% endif %}>No</option>
+                        <option value="true" {% if markers == 'true' %}selected{% endif %}>Yes</option>
+                    </select>
+                    
+                    <label for="line_shape">Line Shape:</label>
+                    <select id="line_shape" name="line_shape">
+                        <option value="linear" {% if line_shape == 'linear' %}selected{% endif %}>Linear</option>
+                        <option value="spline" {% if line_shape == 'spline' %}selected{% endif %}>Spline</option>
+                        <option value="hv" {% if line_shape == 'hv' %}selected{% endif %}>hv</option>
+                        <option value="vh" {% if line_shape == 'vh' %}selected{% endif %}>vh</option>
+                        <option value="hvh" {% if line_shape == 'hvh' %}selected{% endif %}>hvh</option>
+                        <option value="vhv" {% if line_shape == 'vhv' %}selected{% endif %}>vhv</option>
+                    </select>
+          
+                    <label for="symbol_sequence_line">Symbol Sequence:</label>
+                    <select id="symbol_sequence_line" name="symbol_sequence_line">
+                        <option value="None" {% if symbol_sequence_line == 'None' %}selected{% endif %}>None</option>
+                        <option value="circle" {% if symbol_sequence_line == 'circle' %}selected{% endif %}>Circle</option>
+                        <option value="square" {% if symbol_sequence_line == 'square' %}selected{% endif %}>Square</option>
+                        <option value="diamond" {% if symbol_sequence_line == 'diamond' %}selected{% endif %}>Diamond</option>
+                    </select>
+                    
+                </div>
+                
+                <div id="scatter_fields_div" style="display: none;">                    
+                    <label for="size">Size:</label>
+                    <select id="size" name="size">
+                        <option value="None" {% if size == 'None' %}selected{% endif %}>None</option>
+                        {% for col in columns %}
+                            <option value="{{ col }}" {% if col == size %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="opacity">Opacity:</label>
+                    <input type="number" id="opacity" name="opacity" step="0.1" placeholder="Enter Opacity..." value="{{ opacity }}">
+
+                    <label for="size_max">Size Max:</label>
+                    <input type="number" id="size_max" name="size_max" placeholder="Enter Size Max..." value="{{ size_max }}">
+
+                    <label for="symbol_sequence_scatter">Symbol Sequence:</label>
+                    <select id="symbol_sequence_scatter" name="symbol_sequence_scatter">
+                        <option value="None" {% if symbol_sequence_scatter == 'None' %}selected{% endif %}>None</option>
+                        <option value="circle" {% if symbol_sequence_scatter == 'circle' %}selected{% endif %}>Circle</option>
+                        <option value="square" {% if symbol_sequence_scatter == 'square' %}selected{% endif %}>Square</option>
+                        <option value="diamond" {% if symbol_sequence_scatter == 'diamond' %}selected{% endif %}>Diamond</option>
+                    </select>
+                    
+                    <label for="marginal_x">Marginal X:</label>
+                    <select id="marginal_x" name="marginal_x">
+                        <option value="None" {% if marginal_x == 'None' %}selected{% endif %}>None</option>
+                        <option value="histogram" {% if marginal_x == 'histogram' %}selected{% endif %}>Histogram</option>
+                        <option value="box" {% if marginal_x == 'box' %}selected{% endif %}>Box</option>
+                    </select>
+
+                    <label for="marginal_y">Marginal Y:</label>
+                    <select id="marginal_y" name="marginal_y">
+                        <option value="None" {% if marginal_y == 'None' %}selected{% endif %}>None</option>
+                        <option value="histogram" {% if marginal_y == 'histogram' %}selected{% endif %}>Histogram</option>
+                        <option value="box" {% if marginal_y == 'box' %}selected{% endif %}>Box</option>
+                    </select>
+                </div>
+                
+                <div id="bar_fields_div">
+                    <label for="opacity_bar">Opacity:</label>
+                    <input type="number" id="opacity_bar" name="opacity_bar" step="0.1" placeholder="Enter Opacity..." value="{{ opacity_bar }}">
+                    
+                    <label for="barmode">Barmode:</label>
+                    <select id="barmode" name="barmode">
+                        <option value="None" {% if barmode == 'None' %}selected{% endif %}>None</option>
+                        <option value="relative" {% if barmode == 'relative' %}selected{% endif %}>Relative</option>
+                        <option value="group" {% if barmode == 'group' %}selected{% endif %}>Group</option>
+                        <option value="stack" {% if barmode == 'stack' %}selected{% endif %}>Stack</option>
+                        <option value="overlay" {% if barmode == 'overlay' %}selected{% endif %}>Overlay</option>
+                    </select>
+                    
+                    <label for="orientation">Orientation:</label>
+                    <select id="orientation" name="orientation">
+                        <option value="v" {% if orientation == 'v' %}selected{% endif %}>Vertical</option>
+                        <option value="h" {% if orientation == 'h' %}selected{% endif %}>Horizontal</option>
+                    </select>
+                    
+                    <label for="pattern_shape">Pattern Shape:</label>
+                    <select id="pattern_shape" name="pattern_shape">
+                        <option value="None" {% if pattern_shape == 'None' %}selected{% endif %}>None</option>
+                        {% for col in columns %}
+                            <option value="{{ col }}" {% if col == pattern_shape %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <label for="text">Text:</label>
+                    <select id="text" name="text">
+                        <option value="None" {% if text == 'None' %}selected{% endif %}>None</option>
+                        {% for col in columns %}
+                            <option value="{{ col }}" {% if col == text %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <label for="text_auto">Text Auto:</label>
+                    <select id="text_auto" name="text_auto">
+                        <option value="false" {% if text_auto == 'false' %}selected{% endif %}>No</option>
+                        <option value="true" {% if text_auto == 'true' %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+                
+                <div id="box_fields_div">
+                    <label for="orientation_box">Orientation:</label>
+                    <select id="orientation_box" name="orientation_box">
+                        <option value="v" {% if orientation_box == 'v' %}selected{% endif %}>Vertical</option>
+                        <option value="h" {% if orientation_box == 'h' %}selected{% endif %}>Horizontal</option>
+                    </select>
+                    
+                    <label for="boxmode">Boxmode:</label>
+                    <select id="boxmode" name="boxmode">
+                        <option value="None" {% if boxmode == 'None' %}selected{% endif %}>None</option>
+                        <option value="group" {% if boxmode == 'group' %}selected{% endif %}>Group</option>
+                        <option value="overlay" {% if boxmode == 'overlay' %}selected{% endif %}>Overlay</option>
+                    </select>
+                    
+                    <label for="points_box">Points:</label>
+                    <select id="points_box" name="points_box">
+                        <option value="None" {% if points_box == 'None' %}selected{% endif %}>None</option>
+                        <option value="all" {% if points_box == 'all' %}selected{% endif %}>All</option>
+                        <option value="outliers" {% if points_box == 'outliers' %}selected{% endif %}>Outliers</option>
+                        <option value="suspectedoutliers" {% if points_box == 'suspectedoutliers' %}selected{% endif %}>Suspectedoutliers</option>
+                    </select>
+                    
+                    <label for="notched">Display Notches:</label>
+                    <select id="notched" name="notched">
+                        <option value="false" {% if notched == 'false' %}selected{% endif %}>No</option>
+                        <option value="true" {% if notched == 'true' %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+                
+                <div id="violin_fields_div">
+                    <label for="violinmode">Violinmode:</label>
+                    <select id="violinmode" name="violinmode">
+                        <option value="None" {% if violinmode == 'None' %}selected{% endif %}>None</option>
+                        <option value="group" {% if violinmode == 'group' %}selected{% endif %}>Group</option>
+                        <option value="overlay" {% if violinmode == 'overlay' %}selected{% endif %}>Overlay</option>
+                    </select>
+                    
+                    <label for="points_violin">Points:</label>
+                    <select id="points_violin" name="points_violin">
+                        <option value="None" {% if points_violin == 'None' %}selected{% endif %}>None</option>
+                        <option value="all" {% if points_violin == 'all' %}selected{% endif %}>All</option>
+                        <option value="outliers" {% if points_violin == 'outliers' %}selected{% endif %}>Outliers</option>
+                        <option value="suspectedoutliers" {% if points_violin == 'suspectedoutliers' %}selected{% endif %}>Suspectedoutliers</option>
+                    </select>
+                    
+                    <label for="box">Display Box:</label>
+                    <select id="box" name="box">
+                        <option value="false" {% if box == 'false' %}selected{% endif %}>No</option>
+                        <option value="true" {% if box == 'true' %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+                
+                <div id="hist_fields_div">
+                    <label for="pattern_shape_hist">Pattern Shape:</label>
+                    <select id="pattern_shape_hist" name="pattern_shape_hist">
+                        <option value="None" {% if pattern_shape_hist == 'None' %}selected{% endif %}>None</option>
+                        {% for col in columns %}
+                            <option value="{{ col }}" {% if col == pattern_shape_hist %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <label for="marginal">Marginal:</label>
+                    <select id="marginal" name="marginal">
+                        <option value="None" {% if marginal == 'None' %}selected{% endif %}>None</option>
+                        <option value="histogram" {% if marginal == 'histogram' %}selected{% endif %}>Histogram</option>
+                        <option value="box" {% if marginal == 'box' %}selected{% endif %}>Box</option>
+                        <option value="rug" {% if marginal == 'rug' %}selected{% endif %}>Rug</option>
+                    </select>
+                    
+                    <label for="opacity_hist">Opacity:</label>
+                    <input type="number" id="opacity_hist" name="opacity_hist" step="0.1" placeholder="Enter Opacity..." value="{{ opacity_hist }}">
+                    
+                    <label for="orientation_hist">Orientation:</label>
+                    <select id="orientation_hist" name="orientation_hist">
+                        <option value="v" {% if orientation_hist == 'v' %}selected{% endif %}>Vertical</option>
+                        <option value="h" {% if orientation_hist == 'h' %}selected{% endif %}>Horizontal</option>
+                    </select>
+                    
+                    <label for="barnorm">Barnorm:</label>
+                    <select id="barnorm" name="barnorm">
+                        <option value="None" {% if barnorm == 'None' %}selected{% endif %}>None</option>
+                        <option value="percent" {% if barnorm == 'percent' %}selected{% endif %}>Percent</option>
+                        <option value="fraction" {% if barnorm == 'fraction' %}selected{% endif %}>Fraction</option>
+                    </select>
+                    
+                    <label for="histnorm">Histnorm:</label>
+                    <select id="histnorm" name="histnorm">
+                        <option value="None" {% if histnorm == 'None' %}selected{% endif %}>None</option>
+                        <option value="probability" {% if histnorm == 'probability' %}selected{% endif %}>Probability</option>
+                        <option value="percent" {% if histnorm == 'percent' %}selected{% endif %}>Percent</option>
+                        <option value="density" {% if histnorm == 'density' %}selected{% endif %}>Density</option>
+                        <option value="probability density" {% if histnorm == 'probability density' %}selected{% endif %}>Probability-Density</option>
+                    </select>
+                    
+                    <label for="histfunc">Histfunc:</label>
+                    <select id="histfunc" name="histfunc">
+                        <option value="count" {% if histfunc == 'count' %}selected{% endif %}>Count</option>
+                        <option value="sum" {% if histfunc == 'sum' %}selected{% endif %}>Sum</option>
+                        <option value="avg" {% if histfunc == 'avg' %}selected{% endif %}>Average</option>
+                        <option value="min" {% if histfunc == 'min' %}selected{% endif %}>Min</option>
+                        <option value="max" {% if histfunc == 'max' %}selected{% endif %}>Max</option>
+                    </select>
+                    
+                    <label for="cumulative">Cumulative:</label>
+                    <select id="cumulative" name="cumulative">
+                        <option value="false" {% if cumulative == 'false' %}selected{% endif %}>No</option>
+                        <option value="true" {% if cumulative == 'true' %}selected{% endif %}>Yes</option>
+                    </select>
+                    
+                    <label for="nbins">No. of bins:</label>
+                    <input type="number" id="nbins" name="nbins" placeholder="Enter number of bins to use..." value="{{ nbins }}">
+                    
+                    <label for="text_auto_hist">Text Auto:</label>
+                    <select id="text_auto_hist" name="text_auto_hist">
+                        <option value="false" {% if text_auto_hist == 'false' %}selected{% endif %}>No</option>
+                        <option value="true" {% if text_auto_hist == 'true' %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+                
+                <div id="pie_fields_div">
+                    <label for="hole">Hole:</label>
+                    <input type="number" id="hole" name="hole" step="0.1" placeholder="Enter size of hole..." value="{{ hole }}">
+                    
+                    <label for="opacity_pie">Opacity:</label>
+                    <input type="number" id="opacity_pie" name="opacity_pie" step="0.1" placeholder="Enter Opacity..." value="{{ opacity_pie }}">
+                    
+                </div>
+                
+                <div id="animation_frame_div">
+                    <label for="animation_frame">Animation Frame:</label>
+                    <select id="animation_frame" name="animation_frame">
+                        <option value="None">None</option>
+                        {% for col in columns %}
+                            <option value="{{ col }}" {% if col == animation_frame %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <label for="animation_group">Animation Group:</label>
+                    <select id="animation_group" name="animation_group">
+                        <option value="None">None</option>
+                        {% for col in columns %}
+                            <option value="{{ col }}" {% if col == animation_group %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <label for="faceting">Want to add faceting?</label>
+                <select id="faceting" name="faceting">
+                    <option value="no" {% if faceting == 'no' %}selected{% endif %}>No</option>
+                    <option value="yes" {% if faceting == 'yes' %}selected{% endif %}>Yes</option>
+                </select>
+                
+                <div id="faceting_fields_div" style="display: none;">
+                    <label for="facet_row">Facet Row:</label>
+                    <select id="facet_row" name="facet_row">
+                        <option value="None" {% if facet_row == 'None' %}selected{% endif %}>None</option>
+                        {% for col in columns %}
+                            <option value="{{ col }}" {% if col == facet_row %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <label for="facet_col">Facet Column:</label>
+                    <select id="facet_col" name="facet_col">
+                        <option value="None" {% if facet_col == 'None' %}selected{% endif %}>None</option>
+                        {% for col in columns %}
+                            <option value="{{ col }}" {% if col == facet_col %}selected{% endif %}>{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <label for="facet_col_wrap">Facet Column Wrap:</label>
+                    <input type="number" id="facet_col_wrap" name="facet_col_wrap" placeholder="Enter max no.of columns to wrap..." value="{{ facet_col_wrap }}"> 
+                    
+                    <label for="facet_row_spacing">Facet Row Spacing:</label>
+                    <input type="number" id="facet_row_spacing" name="facet_row_spacing" step="0.1" placeholder="Enter spacing between rows of facets..." value="{{ facet_row_spacing }}">
+                    
+                    <label for="facet_col_spacing">Facet Column Spacing:</label>
+                    <input type="number" id="facet_col_spacing" name="facet_col_spacing" step="0.1" placeholder="Enter spacing between columns of facets..." value="{{ facet_col_spacing }}">
+                    
+                </div>
+                
+                
+                <input type="submit" value="Generate Graph">
+            </form>
+        </div>
+        <div id="graph" class="graph-container"></div>
+    </div>
+    <script>
+        var graphJSON = {{ graphJSON | safe }};
+        Plotly.plot('graph', graphJSON.data, graphJSON.layout);
+    </script>
+</body>
+</html>

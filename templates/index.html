@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+    <link rel="stylesheet" href="static/styles1.css">
+    
+</head>
+<body>
+    <h1>Interactive Data Visualization Dashboard</h1>
+    <div class="container">
+    <h3>Upload CSV File</h3>
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    </div>
+</body>
+</html>
